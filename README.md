@@ -161,23 +161,58 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ## 6. Motyw GRUB Breeze
 
-Motyw GRUB Breeze:
+Instalacja:
 
-```bash
+```
 sudo pacman -S --needed breeze-grub
 ```
 
-Ustawienie:
+Kopia motywu na ESP:
 
-```bash
+```
+sudo mkdir -p /boot/grub/themes
+sudo cp -r /usr/share/grub/themes/breeze /boot/grub/themes/
+```
+
+Ustawienie w `/etc/default/grub`:
+
+```
 grep -q '^GRUB_THEME=' /etc/default/grub \
-  && sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/usr/share/grub/themes/breeze/theme.txt"|' /etc/default/grub \
-  || echo 'GRUB_THEME="/usr/share/grub/themes/breeze/theme.txt"' | sudo tee -a /etc/default/grub
+  && sudo sed -i 's|^GRUB_THEME=.*|GRUB_THEME="/boot/grub/themes/breeze/theme.txt"|' /etc/default/grub \
+  || echo 'GRUB_THEME="/boot/grub/themes/breeze/theme.txt"' | sudo tee -a /etc/default/grub
+```
 
+Upewnij się, że tryb graficzny jest włączony (bez tego motyw się nie wyświetli):
+
+```
+grep -q '^GRUB_GFXMODE=' /etc/default/grub \
+  || echo 'GRUB_GFXMODE=auto' | sudo tee -a /etc/default/grub
+
+grep -q '^GRUB_GFXPAYLOAD_LINUX=' /etc/default/grub \
+  || echo 'GRUB_GFXPAYLOAD_LINUX=keep' | sudo tee -a /etc/default/grub
+```
+
+Regeneracja konfiguracji:
+
+```
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
----
+Weryfikacja — w wygenerowanym `grub.cfg` powinna pojawić się linia z `set theme=...`:
+
+```
+sudo grep -E 'set theme|set gfxmode|terminal_output' /boot/grub/grub.cfg
+```
+
+Oczekiwany efekt:
+
+```
+set gfxmode=auto
+terminal_output gfxterm
+set theme=($root)/grub/themes/breeze/theme.txt
+```
+
+Jeśli linia `set theme` się pojawia — restart i GRUB pokaże motyw Breeze.
 
 ## 7. Drukarka i skaner Brother DCP-B7520DW
 
