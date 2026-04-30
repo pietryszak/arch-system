@@ -433,22 +433,22 @@ sudo snapper -c home modify --cleanup-algorithm important NUMER
 
 ---
 
-## 18. Stan końcowy systemu po konfiguracji opcjonalnej
+## 14. Power Profiles Daemon — przełącznik trybów zasilania w KDE
 
-Po wykonaniu opcjonalnych kroków post-install możesz dodatkowo mieć:
+W Plasma w *Settings → Power and Battery* widać komunikat „Power profiles may be supported on your device” — w Arch pakiet nie jest instalowany domyślnie (w odróżnieniu od Fedory/Ubuntu).
 
-- Plymouth splash
-- motyw GRUB Breeze
-- `yay`
-- Brave
-- Firefox
-- Thunderbird
-- Brother DCP-B7520DW
-- obsługę iPhone'a
-- AirPods Pro MPRIS
-- Xbox pad przez `xpadneo`
-- aktualizacje firmware przez `fwupd`
-- firewall
-- kodeki
-- narzędzia diagnostyczne
+```
+sudo pacman -S --needed power-profiles-daemon
+sudo systemctl enable --now power-profiles-daemon.service
+```
+
+Po włączeniu w KDE pojawią się trzy profile (Performance / Balanced / Power Saver) oraz przełącznik na panelu systemowym.
+
+Weryfikacja:
+
+```
+powerprofilesctl
+```
+
+**Uwaga:** `power-profiles-daemon` jest niekompatybilny z `tlp`. Nie instaluj obu naraz — wybierz jedno.
 
