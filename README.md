@@ -53,7 +53,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```bash
 sudo pacman -S --needed \
   bash-completion btop fastfetch openssh playerctl \
-  zip unzip p7zip \
+  zip unzip p7zip ark unrar \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
   wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle
