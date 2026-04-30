@@ -486,4 +486,55 @@ allowed=true
 system=true
 users=
 ```
+## 16. Geolokalizacja — Night Light, widget pogody, strefa czasowa
 
+```
+sudo pacman -S --needed geoclue
+```
+
+Backend `reallyfreegeoip` (MLS nie żyje od 2024):
+
+```
+sudo tee /etc/geoclue/conf.d/90-ip-method.conf > /dev/null << 'EOF'
+[ip]
+enable=true
+method=reallyfreegeoip
+EOF
+```
+
+Autostart agenta w KDE:
+
+```
+mkdir -p ~/.config/autostart
+
+cat > ~/.config/autostart/geoclue-agent.desktop << 'EOF'
+[Desktop Entry]
+Type=Application
+Name=GeoClue Agent
+Exec=/usr/lib/geoclue-2.0/demos/agent
+NoDisplay=true
+X-KDE-autostart-after=panel
+EOF
+```
+
+Test:
+
+```
+/usr/lib/geoclue-2.0/demos/agent &
+/usr/lib/geoclue-2.0/demos/where-am-i
+```
+
+Oczekiwane: `Description: GeoIP (reallyfreegeoip)`.
+
+Opcjonalnie statyczna lokalizacja (wygrywa z IP gdy ma lepszą dokładność):
+
+```
+sudo tee /etc/geolocation > /dev/null << 'EOF'
+50.0413
+21.9990
+100
+200
+EOF
+```
+
+Format: szerokość, długość, dokładność [m], wysokość [m] — każda wartość w osobnej linii.
