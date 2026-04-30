@@ -5,8 +5,36 @@ Ten plik jest przeznaczony jako osobne README dla repo z konfiguracją **po inst
 Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs, więc przed większymi zmianami robisz snapshot.
 
 ---
+## 1.Katalog na klony/AUR/własne rzeczy:
 
-## 1. Pakiety bazowe po instalacji, opcjonalne
+```bash
+mkdir -p ~/.gc
+```
+
+## 2. Wymuszenie polskiego układu klawiatury dla GUI
+
+Systemowo masz `KEYMAP=pl`, ale dla GUI/Plasma możesz dodatkowo ustawić:
+
+```bash
+sudo localectl --no-convert set-x11-keymap pl
+```
+
+Sprawdzenie:
+
+```bash
+localectl status
+```
+Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
+
+## 3. Fstrim
+
+`fstrim.timer` warto mieć na SSD/NVMe:
+
+```bash
+sudo systemctl enable --now fstrim.timer
+```
+
+## 4. Pakiety bazowe po instalacji
 
 Przed większym blokiem zmian:
 
@@ -16,30 +44,18 @@ sudo snapper -c home create --description "home before post-install tweaks"
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-Sensowny zestaw bez nadmiarowego śmietnika:
-
 ```bash
 sudo pacman -S --needed \
   bash-completion btop fastfetch openssh playerctl \
   zip unzip p7zip \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
-  wireguard-tools
-```
-
-`firewalld` instaluj w sekcji **16. Bezpieczne SSH tylko w domu**, jeśli chcesz firewall i SSH ograniczone do domowej sieci LAN.
-
-`unrar`, `mtools`, `net-tools`, `networkmanager-openvpn` instaluj tylko wtedy, gdy faktycznie ich potrzebujesz.
-
-`fstrim.timer` warto mieć na SSD/NVMe:
-
-```bash
-sudo systemctl enable --now fstrim.timer
+  wireguard-tools firefox thunderbird base-devel linux-headers dkms
 ```
 
 ---
 
-## 2. Kodeki multimedialne
+## 5. Kodeki multimedialne
 
 Minimalny system ma część bibliotek multimedialnych jako zależności KDE, ale do pełniejszej obsługi audio/wideo warto doinstalować:
 
@@ -64,28 +80,9 @@ sudo pacman -S --needed \
 ```bash
 sudo pacman -S --needed libdvdcss
 ```
-
 ---
 
-## 3. Firefox, Thunderbird, Brave
-
-Firefox i Thunderbird z repo:
-
-```bash
-sudo pacman -S --needed firefox thunderbird
-```
-
-Brave z AUR, więc najpierw `yay`.
-
----
-
-## 4. `base-devel` i `yay`
-
-Do AUR potrzebujesz `base-devel`.
-
-```bash
-sudo pacman -S --needed base-devel
-```
+## 6. `yay`
 
 Instalacja `yay`:
 
@@ -96,22 +93,10 @@ cd yay
 makepkg -si
 ```
 
-Opcjonalny katalog na klony/AUR/własne rzeczy:
+## 7. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
-mkdir -p ~/.gc
-```
-
-Pakiety AUR, jeśli ich chcesz:
-
-```bash
-yay -S brave-bin brother-dcp-b7520dw brscan4 brscan-skey xpadneo-dkms plymouth-theme-arch-breeze-git
-```
-
-Uwaga: `xpadneo-dkms` wymaga `dkms` i nagłówków kernela. `linux-headers` powinien być już w bazowej instalacji, ale jeśli go nie masz:
-
-```bash
-sudo pacman -S --needed linux-headers dkms
+yay -S brave-origin-nightly brother-dcp-b7520dw brscan4 brscan-skey xpadneo-dkms plymouth-theme-arch-breeze-git
 ```
 
 Po instalacji `xpadneo-dkms` najlepiej zrobić restart.
@@ -200,19 +185,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-## 7. Wymuszenie polskiego układu klawiatury dla GUI
 
-Systemowo masz `KEYMAP=pl`, ale dla GUI/Plasma możesz dodatkowo ustawić:
-
-```bash
-sudo localectl --no-convert set-x11-keymap pl
-```
-
-Sprawdzenie:
-
-```bash
-localectl status
-```
 
 ---
 
