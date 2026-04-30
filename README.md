@@ -243,18 +243,58 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 ## 8. Brave — obejście wolnego startu na KDE
 
-Jeśli Brave uruchamia się długo przez integrację z portfelem/secret service, możesz ustawić `--password-store=basic`.
+Brave potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Brave (zarówno nightly, jak i snapshot) instaluje **dwa** pliki `.desktop` — stary i nowy reverse-DNS — KDE używa nowego, więc trzeba zmodyfikować oba.
 
-```bash
+Sprzątanie poprzednich (potencjalnie zepsutych) kopii:
+
+```
+rm -f ~/.local/share/applications/brave*.desktop \
+      ~/.local/share/applications/com.brave.*.desktop
+```
+
+Kopia świeżych oryginałów i wstrzyknięcie flagi (zachowuje pełną ścieżkę binarki niezależnie od kanału):
+
+```
 mkdir -p ~/.local/share/applications
-cp /usr/share/applications/brave-origin-nightly.desktop ~/.local/share/applications/
 
-sed -i 's|^Exec=.*|Exec=brave --password-store=basic %U|' ~/.local/share/applications/brave-origin-nightly.desktop
+for f in /usr/share/applications/brave-origin-nightly.desktop \
+         /usr/share/applications/com.brave.Origin.nightly.desktop; do
+  [ -f "$f" ] && cp "$f" ~/.local/share/applications/
+done
+
+for f in ~/.local/share/applications/brave-origin-nightly.desktop \
+         ~/.local/share/applications/com.brave.Origin.nightly.desktop; do
+  [ -f "$f" ] && sed -i 's|^Exec=\([^ ]*\)\(.*\)$|Exec=\1 --password-store=basic\2|' "$f"
+done
+```
+
+Odświeżenie cache menu:
+
+```
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
 XDG_MENU_PREFIX=plasma- kbuildsycoca6 --noincremental
 ```
 
----
+Weryfikacja — wszystkie linie `Exec=` powinny mieć `--password-store=basic` zaraz po nazwie binarki:
+
+```
+grep ^Exec= ~/.local/share/applications/brave-origin-nightly.desktop \
+            ~/.local/share/applications/com.brave.Origin.nightly.desktop
+```
+
+Oczekiwany efekt (6 linii — 3 w każdym pliku):
+
+```
+Exec=/usr/bin/brave-origin-nightly --password-store=basic %U
+Exec=/usr/bin/brave-origin-nightly --password-store=basic
+Exec=/usr/bin/brave-origin-nightly --password-store=basic --incognito
+```
+
+Jeśli Brave dalej nie startuje, uruchom go z terminala żeby zobaczyć błąd:
+
+```
+/usr/bin/brave-origin-nightly --password-store=basic
+```
 
 ## 9. iPhone — parowanie i dostęp do plików
 
