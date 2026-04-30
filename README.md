@@ -5,6 +5,12 @@ Ten plik jest przeznaczony jako osobne README dla repo z konfiguracją **po inst
 Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs, więc przed większymi zmianami robisz snapshot.
 
 ---
+## 0. Instalacja Firefox
+
+```bash
+sudo pacman -S --needed firefox 
+```
+
 ## 1.Katalog na klony/AUR/własne rzeczy:
 
 ```bash
