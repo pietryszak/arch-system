@@ -96,16 +96,13 @@ makepkg -si
 ## 7. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
-yay -S brave-origin-nightly brother-dcp-b7520dw brscan4 brscan-skey xpadneo-dkms plymouth-theme-arch-breeze-git
+yay -S brave-origin-nightly
 ```
 
-Po instalacji `xpadneo-dkms` najlepiej zrobić restart.
 
 ---
 
 ## 5. Plymouth i splash screen
-
-W bazowej instalacji celowo nie było Plymouth, bo minimalny system i hibernacja/LUKS/TPM powinny najpierw działać bez upiększeń.
 
 Instalacja Plymouth:
 
@@ -113,7 +110,7 @@ Instalacja Plymouth:
 sudo pacman -S --needed plymouth plymouth-kcm
 ```
 
-Jeśli używasz motywu z AUR:
+Motyw z AUR:
 
 ```bash
 yay -S plymouth-theme-arch-breeze-git
@@ -123,13 +120,6 @@ Ustawienie motywu:
 
 ```bash
 sudo plymouth-set-default-theme -R arch-breeze
-```
-
-Powrót do zwykłego Breeze:
-
-```bash
-sudo pacman -S --needed breeze-plymouth
-sudo plymouth-set-default-theme -R breeze
 ```
 
 Dodanie `splash` do GRUB:
@@ -161,13 +151,11 @@ sudo mkinitcpio -P
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-Uwaga: przy LUKS + TPM2 PIN najpierw upewnij się, że zwykły boot i hibernacja działają. Plymouth dodawaj dopiero później.
-
 ---
 
 ## 6. Motyw GRUB Breeze
 
-Jeśli chcesz motyw GRUB Breeze:
+Motyw GRUB Breeze:
 
 ```bash
 sudo pacman -S --needed breeze-grub
@@ -185,50 +173,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-
-
----
-
-## 8. Dell Latitude 5421 — fix DPTF throttling po hibernacji / monitorach USB-C
-
-Fix na przypadek, gdy Dell Latitude 5421 po zewnętrznych monitorach USB-C/Thunderbolt lub po hibernacji dławi CPU do około 200 MHz.
-
-Utwórz usługę:
-
-```bash
-sudo tee /etc/systemd/system/fix-dptf-throttle.service << 'EOF'
-[Unit]
-Description=Unbind DPTF proc_thermal after resume
-After=hibernate.target suspend.target hybrid-sleep.target suspend-then-hibernate.target
-
-[Service]
-Type=oneshot
-ExecStart=/bin/sh -c 'sleep 2 && echo 0000:00:04.0 > /sys/bus/pci/drivers/proc_thermal/unbind 2>/dev/null || true'
-
-[Install]
-WantedBy=hibernate.target suspend.target hybrid-sleep.target suspend-then-hibernate.target
-EOF
-
-sudo systemctl enable fix-dptf-throttle.service
-```
-
-Diagnostyka, gdy CPU znowu spada do bardzo niskich taktowań:
-
-```bash
-cat /proc/cpuinfo | grep "MHz" | head -4
-```
-
-Ręczny fix:
-
-```bash
-sudo sh -c 'echo 0000:00:04.0 > /sys/bus/pci/drivers/proc_thermal/unbind'
-```
-
-Uwaga: po odpięciu DPTF kernel nadal ma własne zabezpieczenia termiczne, ale po tej zmianie warto obserwować temperatury przez kilka dni, np. w `btop`.
-
----
-
-## 9. Drukarka i skaner Brother DCP-B7520DW
+## 7. Drukarka i skaner Brother DCP-B7520DW
 
 Jeżeli chcesz obsługę drukarki/skanera Brother, doinstaluj:
 
@@ -255,26 +200,18 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 ---
 
-## 10. Brave — obejście wolnego startu na KDE
+## 8. Brave — obejście wolnego startu na KDE
 
 Jeśli Brave uruchamia się długo przez integrację z portfelem/secret service, możesz ustawić `--password-store=basic`.
 
 ```bash
 mkdir -p ~/.local/share/applications
-cp /usr/share/applications/brave-browser.desktop ~/.local/share/applications/
+cp /usr/share/applications/brave-origin-nightly.desktop ~/.local/share/applications/
 
-sed -i 's|^Exec=.*|Exec=brave --password-store=basic %U|' ~/.local/share/applications/brave-browser.desktop
+sed -i 's|^Exec=.*|Exec=brave --password-store=basic %U|' ~/.local/share/applications/brave-origin-nightly.desktop
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
 XDG_MENU_PREFIX=plasma- kbuildsycoca6 --noincremental
 ```
-
-Sprawdzenie:
-
-```bash
-grep '^Exec=' ~/.local/share/applications/brave-browser.desktop
-```
-
-Od tej chwili Brave z menu aplikacji użyje `--password-store=basic`.
 
 ---
 
