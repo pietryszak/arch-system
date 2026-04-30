@@ -56,7 +56,8 @@ sudo pacman -S --needed \
   zip unzip p7zip ark unrar \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
-  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle gwenview kcalc
+  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle gwenview kcalc \
+  kdeplasma-addons
 ```
 
 ---
