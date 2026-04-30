@@ -453,3 +453,37 @@ powerprofilesctl
 
 **Uwaga:** `power-profiles-daemon` jest niekompatybilny z `tlp`. Nie instaluj obu naraz — wybierz jedno.
 
+## 15. Geolokalizacja — Night Light, automatyczna strefa
+
+W Arch domyślnie nie ma demona lokalizacji (w Ubuntu/Fedorze jest preinstalowany). Bez niego **Night Light → Automatically detect location** nie działa — pokazuje pustą mapę.
+
+Instalacja:
+
+```
+sudo pacman -S --needed geoclue
+```
+
+`geoclue` to usługa aktywowana przez D-Bus — uruchamia się sama gdy aplikacja jej potrzebuje. **Nie trzeba `systemctl enable`.**
+
+Test:
+
+```
+/usr/lib/geoclue-2.0/demos/where-am-i
+```
+
+Po kilku sekundach powinno pokazać współrzędne i miasto. Następnie w *System Settings → Display & Monitor → Night Light → Day-Night Cycle* wykryje lokalizację automatycznie.
+
+Jeśli aplikacje KDE dalej nie dostają lokalizacji, dodaj uprawnienia w `/etc/geoclue/geoclue.conf`:
+
+```
+[plasmashell]
+allowed=true
+system=true
+users=
+
+[kded6]
+allowed=true
+system=true
+users=
+```
+
