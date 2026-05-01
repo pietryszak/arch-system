@@ -4,18 +4,25 @@ Ten plik jest przeznaczony jako osobne README dla repo z konfiguracją **po inst
 
 Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs, więc przed większymi zmianami robisz snapshot.
 
+**Szybki skok (sekcje 1–4):** [1 — Katalog `~/.gc`](#sys-1) · [2 — Układ klawiatury GUI](#sys-2) · [3 — Fstrim](#sys-3) · [4 — Pakiety bazowe](#sys-4)
+
 ---
+
 ## 0. Instalacja Firefox
 
 ```bash
 sudo pacman -S --needed firefox 
 ```
 
-## 1.Katalog na klony/AUR/własne rzeczy:
+<a name="sys-1"></a>
+
+## 1. Katalog na klony/AUR/własne rzeczy
 
 ```bash
 mkdir -p ~/.gc
 ```
+
+<a name="sys-2"></a>
 
 ## 2. Wymuszenie polskiego układu klawiatury dla GUI
 
@@ -32,6 +39,8 @@ localectl status
 ```
 Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
 
+<a name="sys-3"></a>
+
 ## 3. Fstrim
 
 `fstrim.timer` warto mieć na SSD/NVMe:
@@ -39,6 +48,8 @@ Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
 ```bash
 sudo systemctl enable --now fstrim.timer
 ```
+
+<a name="sys-4"></a>
 
 ## 4. Pakiety bazowe po instalacji
 
@@ -58,7 +69,7 @@ sudo pacman -S --needed \
   usbutils lsof smartmontools traceroute \
   wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle \
   gwenview kcalc kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols \
-  ripgrep bat fd fzf micro most zoxide wl-clipboard
+  ripgrep bat fd fzf micro most zoxide wl-clipboard python3
 ```
 
 ```bash
@@ -110,7 +121,6 @@ makepkg -si
 ```bash
 yay -S brave-origin-nightly
 ```
-
 
 ---
 
@@ -491,6 +501,7 @@ allowed=true
 system=true
 users=
 ```
+
 ## 16. Geolokalizacja — Night Light, widget pogody, strefa czasowa
 
 ```
