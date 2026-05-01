@@ -543,3 +543,104 @@ EOF
 ```
 
 Format: szerokość, długość, dokładność [m], wysokość [m] — każda wartość w osobnej linii.
+
+## 17. Zsh + Oh My Zsh + Powerlevel10k
+
+Instalacja pakietów:
+
+```bash
+sudo pacman -S --needed \
+  zsh git curl \
+  zsh-autosuggestions zsh-syntax-highlighting
+```
+
+Instalacja Oh My Zsh:
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+Instalacja motywu Powerlevel10k:
+
+```bash
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+  "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+```
+
+W `~/.zshrc` ustaw motyw:
+
+```zsh
+ZSH_THEME="powerlevel10k/powerlevel10k"
+```
+
+Przykładowa lista pluginów w `~/.zshrc`:
+
+```zsh
+plugins=(
+  git
+  sudo
+  fzf
+  zoxide
+)
+```
+
+Na końcu `~/.zshrc` dodaj pluginy z pacmana:
+
+```zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+```
+
+Zmiana domyślnego shella użytkownika na Zsh:
+
+```bash
+sudo usermod -s /usr/bin/zsh "$USER"
+```
+
+Sprawdzenie:
+
+```bash
+getent passwd "$USER"
+```
+
+Linia użytkownika powinna kończyć się na:
+
+```text
+:/usr/bin/zsh
+```
+
+Jeśli Konsole nadal uruchamia Basha, zmień profil Konsole:
+
+```text
+Konsole → Settings → Manage Profiles → Edit Profile → General → Command
+```
+
+Ustaw:
+
+```text
+/usr/bin/zsh
+```
+
+albo zostaw pole `Command` puste, żeby Konsole używało domyślnego shella użytkownika.
+
+Zamknij wszystkie okna Konsole i otwórz nowe.
+
+Sprawdzenie aktywnego shella:
+
+```bash
+echo "$SHELL"
+ps -p $$ -o comm=
+```
+
+Oczekiwany wynik:
+
+```text
+/usr/bin/zsh
+zsh
+```
+
+Konfiguracja Powerlevel10k:
+
+```bash
+p10k configure
+```
