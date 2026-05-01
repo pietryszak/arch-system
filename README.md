@@ -644,3 +644,81 @@ Konfiguracja Powerlevel10k:
 ```bash
 p10k configure
 ```
+
+## L18.aLzyVim
+
+Backup obecnej konfiguracji Neovima:
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.bak
+```
+
+Opcjonalnie, ale zalecane:
+
+```bash
+mv ~/.local/share/nvim ~/.local/share/nvim.bak
+mv ~/.local/state/nvim ~/.local/state/nvim.bak
+mv ~/.cache/nvim ~/.cache/nvim.bak
+```
+
+Klonowanie LazyVim Starter:
+
+```bash
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+```
+
+Usunięcie katalogu `.git`, żeby później można było dodać konfigurację do własnego repo:
+
+```bash
+rm -rf ~/.config/nvim/.git
+```
+
+Pierwsze uruchomienie:
+
+```bash
+nvim
+```
+
+Po pierwszym uruchomieniu LazyVim pobierze pluginy.
+
+### Motyw OneDark
+
+Utwórz plik:
+
+```bash
+nvim ~/.config/nvim/lua/plugins/colorscheme.lua
+```
+
+Wklej:
+
+```lua
+return {
+  {
+    "navarasu/onedark.nvim",
+    priority = 1000,
+    lazy = false,
+    opts = {
+      style = "darker",
+    },
+  },
+
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "onedark",
+    },
+  },
+}
+```
+
+Zsynchronizuj pluginy w Neovimie:
+
+```vim
+:Lazy sync
+```
+
+Zamknij i uruchom ponownie:
+
+```bash
+nvim
+```
