@@ -645,7 +645,7 @@ Konfiguracja Powerlevel10k:
 p10k configure
 ```
 
-## L18.aLzyVim
+## 18.LazyVim
 
 Backup obecnej konfiguracji Neovima:
 
@@ -721,4 +721,32 @@ Zamknij i uruchom ponownie:
 
 ```bash
 nvim
+```
+
+### 19. Motyw OneHalfDark dla `bat`
+
+Utwórz katalog konfiguracji:
+
+```bash
+mkdir -p ~/.config/bat
+```
+
+Utwórz plik konfiguracyjny:
+
+```bash
+nvim ~/.config/bat/config
+```
+
+Wklej:
+
+```text
+--theme="OneHalfDark"
+--style="plain"
+--paging=never
+```
+
+Test:
+
+```bash
+bat ~/.zshrc
 ```
