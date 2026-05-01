@@ -750,3 +750,30 @@ Test:
 ```bash
 bat ~/.zshrc
 ```
+
+## 20.KDE Power Management — poziomy baterii
+
+Ustaw zalecane poziomy baterii:
+
+```text
+Low level: 15%
+Critical level: 7%
+At critical level: Hibernate
+```
+
+Ścieżka w KDE Plasma:
+
+```text
+System Settings → Power Management → Advanced Power Settings
+```
+
+Ustaw:
+
+```text
+Battery Levels:
+  Low level:       15%
+  Critical level:  7%
+  At critical:     Hibernate
+```
+
+Przy zużytej baterii niskie procenty oznaczają bardzo mało realnej energii. `Low level` na `15%` daje wcześniejsze ostrzeżenie, a `Critical level` na `7%` zostawia mały bufor przed hibernacją.
