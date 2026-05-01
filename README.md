@@ -56,9 +56,9 @@ sudo pacman -S --needed \
   zip unzip p7zip ark unrar \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
-  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle gwenview kcalc \
-  kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols ripgrep bat fd fzf micro \
-  most
+  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle \
+  gwenview kcalc kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols \
+  ripgrep bat fd fzf micro most
 ```
 
 ```bash
