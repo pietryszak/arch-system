@@ -4,27 +4,55 @@ Ten plik jest przeznaczony jako osobne README dla repo z konfiguracją **po inst
 
 Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs, więc przed większymi zmianami robisz snapshot.
 
-**Szybki skok (sekcje 1–4):** [1 — Katalog `~/.gc`](#sys-1) · [2 — Układ klawiatury GUI](#sys-2) · [3 — Fstrim](#sys-3) · [4 — Pakiety bazowe](#sys-4)
+## Spis treści
+
+- [1. Instalacja Firefox](#toc-01)
+- [2. Katalog na klony / AUR / własne rzeczy](#toc-02)
+- [3. Układ klawiatury GUI (Plasma)](#toc-03)
+- [4. Fstrim](#toc-04)
+- [5. Pakiety bazowe po instalacji](#toc-05)
+- [6. Kodeki multimedialne](#toc-06)
+- [7. `yay`](#toc-07)
+- [8. Pakiety AUR](#toc-08)
+- [9. Plymouth i splash screen](#toc-09)
+- [10. Motyw GRUB Breeze](#toc-10)
+- [11. Drukarka i skaner Brother DCP-B7520DW](#toc-11)
+- [12. Brave — wolny start na KDE](#toc-12)
+- [13. iPhone — parowanie i pliki](#toc-13)
+- [14. Bluetooth — AirPods / sterowanie mediami](#toc-14)
+- [15. Bluetooth — Xbox pad](#toc-15)
+- [16. Aktualizacje firmware Dell / LVFS](#toc-16)
+- [17. Snapshot po post-install](#toc-17)
+- [18. Power Profiles Daemon](#toc-18)
+- [19. Geolokalizacja — Night Light, strefa](#toc-19)
+- [20. Geolokalizacja — widget pogody, strefa czasowa](#toc-20)
+- [21. Zsh + Oh My Zsh + Powerlevel10k](#toc-21)
+- [22. LazyVim](#toc-22)
+  - [22.1. Motyw OneDark](#toc-23)
+  - [22.2. Motyw OneHalfDark dla `bat`](#toc-24)
+- [23. KDE Power Management — poziomy baterii](#toc-25)
 
 ---
 
-## 0. Instalacja Firefox
+<a name="toc-01"></a>
+
+## 1. Instalacja Firefox
 
 ```bash
 sudo pacman -S --needed firefox 
 ```
 
-<a name="sys-1"></a>
+<a name="toc-02"></a>
 
-## 1. Katalog na klony/AUR/własne rzeczy
+## 2. Katalog na klony/AUR/własne rzeczy
 
 ```bash
 mkdir -p ~/.gc
 ```
 
-<a name="sys-2"></a>
+<a name="toc-03"></a>
 
-## 2. Wymuszenie polskiego układu klawiatury dla GUI
+## 3. Wymuszenie polskiego układu klawiatury dla GUI
 
 Systemowo masz `KEYMAP=pl`, ale dla GUI/Plasma możesz dodatkowo ustawić:
 
@@ -39,9 +67,9 @@ localectl status
 ```
 Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
 
-<a name="sys-3"></a>
+<a name="toc-04"></a>
 
-## 3. Fstrim
+## 4. Fstrim
 
 `fstrim.timer` warto mieć na SSD/NVMe:
 
@@ -49,9 +77,9 @@ Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
 sudo systemctl enable --now fstrim.timer
 ```
 
-<a name="sys-4"></a>
+<a name="toc-05"></a>
 
-## 4. Pakiety bazowe po instalacji
+## 5. Pakiety bazowe po instalacji
 
 Przed większym blokiem zmian:
 
@@ -78,7 +106,9 @@ fc-cache -fv
 
 ---
 
-## 5. Kodeki multimedialne
+<a name="toc-06"></a>
+
+## 6. Kodeki multimedialne
 
 Minimalny system ma część bibliotek multimedialnych jako zależności KDE, ale do pełniejszej obsługi audio/wideo warto doinstalować:
 
@@ -105,7 +135,9 @@ sudo pacman -S --needed libdvdcss
 ```
 ---
 
-## 6. `yay`
+<a name="toc-07"></a>
+
+## 7. `yay`
 
 Instalacja `yay`:
 
@@ -116,7 +148,9 @@ cd yay
 makepkg -si
 ```
 
-## 7. Pakiety AUR, jeśli ich chcesz:
+<a name="toc-08"></a>
+
+## 8. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
 yay -S brave-origin-nightly
@@ -124,7 +158,9 @@ yay -S brave-origin-nightly
 
 ---
 
-## 5. Plymouth i splash screen
+<a name="toc-09"></a>
+
+## 9. Plymouth i splash screen
 
 Instalacja Plymouth:
 
@@ -175,7 +211,9 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-## 6. Motyw GRUB Breeze
+<a name="toc-10"></a>
+
+## 10. Motyw GRUB Breeze
 
 Instalacja:
 
@@ -230,7 +268,9 @@ set theme=($root)/grub/themes/breeze/theme.txt
 
 Jeśli linia `set theme` się pojawia — restart i GRUB pokaże motyw Breeze.
 
-## 7. Drukarka i skaner Brother DCP-B7520DW
+<a name="toc-11"></a>
+
+## 11. Drukarka i skaner Brother DCP-B7520DW
 
 Jeżeli chcesz obsługę drukarki/skanera Brother, doinstaluj:
 
@@ -257,7 +297,9 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 ---
 
-## 8. Brave — obejście wolnego startu na KDE
+<a name="toc-12"></a>
+
+## 12. Brave — obejście wolnego startu na KDE
 
 Brave potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Brave (zarówno nightly, jak i snapshot) instaluje **dwa** pliki `.desktop` — stary i nowy reverse-DNS — KDE używa nowego, więc trzeba zmodyfikować oba.
 
@@ -312,7 +354,9 @@ Jeśli Brave dalej nie startuje, uruchom go z terminala żeby zobaczyć błąd:
 /usr/bin/brave-origin-nightly --password-store=basic
 ```
 
-## 9. iPhone — parowanie i dostęp do plików
+<a name="toc-13"></a>
+
+## 13. iPhone — parowanie i dostęp do plików
 
 Pakiety:
 
@@ -364,7 +408,9 @@ fusermount -u ~/iPhone
 
 ---
 
-## 10. Bluetooth — AirPods Pro i sterowanie mediami
+<a name="toc-14"></a>
+
+## 14. Bluetooth — AirPods Pro i sterowanie mediami
 
 Do sterowania mediami z przycisków słuchawek Bluetooth:
 
@@ -387,7 +433,9 @@ sudo pacman -S --needed playerctl
 
 ---
 
-## 11. Bluetooth — Xbox pad
+<a name="toc-15"></a>
+
+## 15. Bluetooth — Xbox pad
 
 Pakiet z AUR:
 
@@ -403,7 +451,9 @@ sudo reboot
 
 ---
 
-## 12. Aktualizacje firmware Dell / LVFS
+<a name="toc-16"></a>
+
+## 16. Aktualizacje firmware Dell / LVFS
 
 W bazowym minimalnym systemie `fwupd` nie był instalowany. Jeśli chcesz aktualizacje BIOS/UEFI/Thunderbolt/NVMe przez LVFS:
 
@@ -427,7 +477,9 @@ fwupdmgr update
 
 ---
 
-## 13. Snapshot po post-install
+<a name="toc-17"></a>
+
+## 17. Snapshot po post-install
 
 Po większych zmianach po instalacji:
 
@@ -449,7 +501,9 @@ sudo snapper -c home modify --cleanup-algorithm important NUMER
 
 ---
 
-## 14. Power Profiles Daemon — przełącznik trybów zasilania w KDE
+<a name="toc-18"></a>
+
+## 18. Power Profiles Daemon — przełącznik trybów zasilania w KDE
 
 W Plasma w *Settings → Power and Battery* widać komunikat „Power profiles may be supported on your device” — w Arch pakiet nie jest instalowany domyślnie (w odróżnieniu od Fedory/Ubuntu).
 
@@ -468,7 +522,9 @@ powerprofilesctl
 
 **Uwaga:** `power-profiles-daemon` jest niekompatybilny z `tlp`. Nie instaluj obu naraz — wybierz jedno.
 
-## 15. Geolokalizacja — Night Light, automatyczna strefa
+<a name="toc-19"></a>
+
+## 19. Geolokalizacja — Night Light, automatyczna strefa
 
 W Arch domyślnie nie ma demona lokalizacji (w Ubuntu/Fedorze jest preinstalowany). Bez niego **Night Light → Automatically detect location** nie działa — pokazuje pustą mapę.
 
@@ -502,7 +558,9 @@ system=true
 users=
 ```
 
-## 16. Geolokalizacja — Night Light, widget pogody, strefa czasowa
+<a name="toc-20"></a>
+
+## 20. Geolokalizacja — Night Light, widget pogody, strefa czasowa
 
 ```
 sudo pacman -S --needed geoclue
@@ -555,7 +613,9 @@ EOF
 
 Format: szerokość, długość, dokładność [m], wysokość [m] — każda wartość w osobnej linii.
 
-## 17. Zsh + Oh My Zsh + Powerlevel10k
+<a name="toc-21"></a>
+
+## 21. Zsh + Oh My Zsh + Powerlevel10k
 
 Instalacja pakietów:
 
@@ -656,7 +716,9 @@ Konfiguracja Powerlevel10k:
 p10k configure
 ```
 
-## 18.LazyVim
+<a name="toc-22"></a>
+
+## 22. LazyVim
 
 Backup obecnej konfiguracji Neovima:
 
@@ -692,7 +754,9 @@ nvim
 
 Po pierwszym uruchomieniu LazyVim pobierze pluginy.
 
-### Motyw OneDark
+<a name="toc-23"></a>
+
+### 22.1. Motyw OneDark
 
 Utwórz plik:
 
@@ -734,7 +798,9 @@ Zamknij i uruchom ponownie:
 nvim
 ```
 
-### 19. Motyw OneHalfDark dla `bat`
+<a name="toc-24"></a>
+
+### 22.2. Motyw OneHalfDark dla `bat`
 
 Utwórz katalog konfiguracji:
 
@@ -762,7 +828,9 @@ Test:
 bat ~/.zshrc
 ```
 
-## 20.KDE Power Management — poziomy baterii
+<a name="toc-25"></a>
+
+## 23. KDE Power Management — poziomy baterii
 
 Ustaw zalecane poziomy baterii:
 
