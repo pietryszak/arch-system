@@ -31,6 +31,7 @@ Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs,
   - [22.1. Motyw OneDark](#toc-23)
   - [22.2. Motyw OneHalfDark dla `bat`](#toc-24)
 - [23. KDE Power Management — poziomy baterii](#toc-25)
+- [24. Google Cloud CLI, Terraform, Go](#toc-26)
 
 ---
 
@@ -856,3 +857,22 @@ Battery Levels:
 ```
 
 Przy zużytej baterii niskie procenty oznaczają bardzo mało realnej energii. `Low level` na `15%` daje wcześniejsze ostrzeżenie, a `Critical level` na `7%` zostawia mały bufor przed hibernacją.
+
+<a name="toc-26"></a>
+
+## 24. Google Cloud CLI, Terraform, Go
+
+Narzędzia GCP (CLI), Terraform i kompilator Go — typowo po zainstalowanym `yay` ([§ 7](#toc-07)):
+
+```bash
+yay -S google-cloud-cli gsutil
+sudo pacman -S --needed terraform go python3
+```
+
+`python3` jest też na liście w [§ 5](#toc-05); `--needed` nie nadpisuje nic bez potrzeby.
+
+Po instalacji SDK (konto, projekt, domyślny region):
+
+```bash
+gcloud init
+```
