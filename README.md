@@ -58,7 +58,7 @@ sudo pacman -S --needed \
   usbutils lsof smartmontools traceroute \
   wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle \
   gwenview kcalc kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols \
-  ripgrep bat fd fzf micro most zoxide
+  ripgrep bat fd fzf micro most zoxide wl-clipboard
 ```
 
 ```bash
