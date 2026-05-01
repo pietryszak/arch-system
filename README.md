@@ -866,7 +866,7 @@ Narzędzia GCP (CLI), Terraform i kompilator Go — typowo po zainstalowanym `ya
 
 ```bash
 yay -S google-cloud-cli gsutil
-sudo pacman -S --needed terraform go python3
+sudo pacman -S --needed terraform go python3 bind
 ```
 
 `python3` jest też na liście w [§ 5](#toc-05); `--needed` nie nadpisuje nic bez potrzeby.
