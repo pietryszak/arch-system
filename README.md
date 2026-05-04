@@ -17,7 +17,7 @@ Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs,
 - [9. Plymouth i splash screen](#toc-09)
 - [10. Motyw GRUB Breeze](#toc-10)
 - [11. Drukarka i skaner Brother DCP-B7520DW](#toc-11)
-- [12. Brave — wolny start na KDE](#toc-12)
+- [12. Vivaldi Snapshot — wolny start na KDE](#toc-12)
 - [13. iPhone — parowanie i pliki](#toc-13)
 - [14. Bluetooth — AirPods / sterowanie mediami](#toc-14)
 - [15. Bluetooth — Xbox pad](#toc-15)
@@ -31,6 +31,19 @@ Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs,
   - [22.1. Motyw OneDark](#toc-23)
   - [22.2. Motyw OneHalfDark dla `bat`](#toc-24)
 - [23. KDE Power Management — poziomy baterii](#toc-25)
+- [24. Google Cloud CLI, Terraform, Go](#toc-26)
+- [25. KVM, libvirt i virt-manager](#toc-27)
+  - [25.1. Weryfikacja sprzętu i kernela](#toc-28)
+  - [25.2. Instalacja pakietów](#toc-29)
+  - [25.3. Usługi i grupy](#toc-30)
+  - [25.4. Domyślna sieć NAT](#toc-31)
+  - [25.5. Domyślny URI dla `virsh`](#toc-32)
+  - [25.6. Nested virtualization](#toc-33)
+  - [25.7. Sterowniki virtio-win (Windows)](#toc-34)
+  - [25.8. Pierwsza maszyna wirtualna](#toc-35)
+  - [25.9. Bridged networking](#toc-36)
+  - [25.10. Shared folders (virtiofs)](#toc-37)
+  - [25.11. Przydatne komendy](#toc-38)
 
 ---
 
@@ -95,9 +108,10 @@ sudo pacman -S --needed \
   zip unzip p7zip ark unrar \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
-  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle \
+  wireguard-tools firefox thunderbird base-devel dkms gcc spectacle \
   gwenview kcalc kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols \
-  ripgrep bat fd fzf micro most zoxide wl-clipboard python3
+  ripgrep bat fd fzf micro most zoxide wl-clipboard python3 \
+  plasma-browser-integration partitionmanager
 ```
 
 ```bash
@@ -153,7 +167,7 @@ makepkg -si
 ## 8. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
-yay -S brave-origin-nightly
+yay -S vivaldi-snapshot mediawriter
 ```
 
 ---
@@ -299,29 +313,27 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 <a name="toc-12"></a>
 
-## 12. Brave — obejście wolnego startu na KDE
+## 12. Vivaldi Snapshot — obejście wolnego startu na KDE
 
-Brave potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Brave (zarówno nightly, jak i snapshot) instaluje **dwa** pliki `.desktop` — stary i nowy reverse-DNS — KDE używa nowego, więc trzeba zmodyfikować oba.
+Vivaldi (Chromium) potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Pakiet `vivaldi-snapshot` z AUR instaluje `vivaldi-snapshot.desktop` w `/usr/share/applications/` — skopiuj go do `~/.local/share/applications/` i dopisz flagę do każdej linii `Exec=`. Jeśli zobaczysz drugi plik w stylu reverse-DNS (`com.vivaldi.*`), dodaj go do pętli tak samo.
 
 Sprzątanie poprzednich (potencjalnie zepsutych) kopii:
 
 ```
-rm -f ~/.local/share/applications/brave*.desktop \
-      ~/.local/share/applications/com.brave.*.desktop
+rm -f ~/.local/share/applications/vivaldi-snapshot.desktop \
+      ~/.local/share/applications/com.vivaldi.*.desktop
 ```
 
-Kopia świeżych oryginałów i wstrzyknięcie flagi (zachowuje pełną ścieżkę binarki niezależnie od kanału):
+Kopia świeżego oryginału i wstrzyknięcie flagi:
 
 ```
 mkdir -p ~/.local/share/applications
 
-for f in /usr/share/applications/brave-origin-nightly.desktop \
-         /usr/share/applications/com.brave.Origin.nightly.desktop; do
+for f in /usr/share/applications/vivaldi-snapshot.desktop; do
   [ -f "$f" ] && cp "$f" ~/.local/share/applications/
 done
 
-for f in ~/.local/share/applications/brave-origin-nightly.desktop \
-         ~/.local/share/applications/com.brave.Origin.nightly.desktop; do
+for f in ~/.local/share/applications/vivaldi-snapshot.desktop; do
   [ -f "$f" ] && sed -i 's|^Exec=\([^ ]*\)\(.*\)$|Exec=\1 --password-store=basic\2|' "$f"
 done
 ```
@@ -333,25 +345,16 @@ update-desktop-database ~/.local/share/applications 2>/dev/null || true
 XDG_MENU_PREFIX=plasma- kbuildsycoca6 --noincremental
 ```
 
-Weryfikacja — wszystkie linie `Exec=` powinny mieć `--password-store=basic` zaraz po nazwie binarki:
+Weryfikacja — każda linia `Exec=` powinna mieć `--password-store=basic` zaraz po ścieżce binarki:
 
 ```
-grep ^Exec= ~/.local/share/applications/brave-origin-nightly.desktop \
-            ~/.local/share/applications/com.brave.Origin.nightly.desktop
+grep ^Exec= ~/.local/share/applications/vivaldi-snapshot.desktop
 ```
 
-Oczekiwany efekt (6 linii — 3 w każdym pliku):
+Jeśli Vivaldi dalej nie startuje, uruchom go z terminala, żeby zobaczyć błąd:
 
 ```
-Exec=/usr/bin/brave-origin-nightly --password-store=basic %U
-Exec=/usr/bin/brave-origin-nightly --password-store=basic
-Exec=/usr/bin/brave-origin-nightly --password-store=basic --incognito
-```
-
-Jeśli Brave dalej nie startuje, uruchom go z terminala żeby zobaczyć błąd:
-
-```
-/usr/bin/brave-origin-nightly --password-store=basic
+/usr/bin/vivaldi-snapshot --password-store=basic
 ```
 
 <a name="toc-13"></a>
@@ -856,3 +859,275 @@ Battery Levels:
 ```
 
 Przy zużytej baterii niskie procenty oznaczają bardzo mało realnej energii. `Low level` na `15%` daje wcześniejsze ostrzeżenie, a `Critical level` na `7%` zostawia mały bufor przed hibernacją.
+
+<a name="toc-26"></a>
+
+## 24. Google Cloud CLI, Terraform, Go
+
+Narzędzia GCP (CLI), Terraform i kompilator Go — typowo po zainstalowanym `yay` ([§ 7](#toc-07)):
+
+```bash
+yay -S google-cloud-cli gsutil
+sudo pacman -S --needed terraform go python3 bind
+```
+
+`python3` jest też na liście w [§ 5](#toc-05); `--needed` nie nadpisuje nic bez potrzeby.
+
+Po instalacji SDK (konto, projekt, domyślny region):
+
+```bash
+gcloud init
+```
+
+---
+
+<a name="toc-27"></a>
+
+## 25. KVM, libvirt i virt-manager
+
+Kompletny setup wirtualizacji na Arch Linux: **KVM/QEMU**, **libvirt**, **virt-manager**.
+
+**Sprzęt referencyjny:** Dell Latitude 5421, Intel i7-11850H (Tiger Lake H, 16 wątków), 32 GB RAM.
+
+<a name="toc-28"></a>
+
+### 25.1. Weryfikacja sprzętu i kernela
+
+Sprawdź, czy CPU wspiera wirtualizację i czy moduły KVM są załadowane:
+
+```bash
+LC_ALL=C lscpu | grep -E "Virtualization|vmx"
+lsmod | grep kvm
+```
+
+Oczekiwane:
+
+- w `lscpu`: **Virtualization: VT-x** (Intel) lub **AMD-V**; w flagach CPU obecność `vmx` (Intel) lub `svm` (AMD);
+- w `lsmod`: moduły `kvm` oraz `kvm_intel` (Intel) lub `kvm_amd` (AMD).
+
+Jeśli brak `kvm_intel` / `kvm_amd` — włącz **Virtualization Support** (VT-x / SVM) w firmware. Na Dellu: **F2** przy starcie → **Virtualization Support**.
+
+<a name="toc-29"></a>
+
+### 25.2. Instalacja pakietów
+
+```bash
+sudo pacman -S --needed qemu-full libvirt virt-manager virt-viewer \
+  dnsmasq openbsd-netcat \
+  swtpm edk2-ovmf dmidecode libguestfs
+```
+
+| Pakiet | Rola |
+|--------|------|
+| `qemu-full` | Emulator QEMU (lżej: `qemu-desktop` — tylko x86_64) |
+| `libvirt` | Daemon zarządzający VM |
+| `virt-manager` | Graficzny menedżer maszyn wirtualnych |
+| `virt-viewer` | Klient SPICE/VNC do okien gościa |
+| `dnsmasq` | DHCP/DNS dla domyślnej sieci NAT |
+| `openbsd-netcat` | Pomocniczo przy łączeniu z innymi hostami libvirt |
+| `swtpm` | Emulacja TPM 2.0 (np. Windows 11) |
+| `edk2-ovmf` | Firmware UEFI dla VM (Secure Boot, nowoczesne OS) |
+| `dmidecode` | Informacje o sprzęcie hosta |
+| `libguestfs` | Narzędzia do pracy na obrazach dysków offline |
+
+**Uwaga:** pakiet `bridge-utils` został wycofany z repozytoriów Arch — mostki konfiguruje się przez `iproute2` (`ip link`), które jest w systemie domyślnie. Nie instaluj `bridge-utils`.
+
+<a name="toc-30"></a>
+
+### 25.3. Usługi i grupy
+
+```bash
+sudo systemctl enable --now libvirtd.service
+sudo usermod -aG libvirt,kvm "$USER"
+```
+
+`virtlogd` i `virtnetworkd` używają aktywacji przez socket — uruchomią się w razie potrzeby.
+
+Po dodaniu do grup **wyloguj się i zaloguj ponownie** (albo tymczasowo: `newgrp libvirt`). Weryfikacja:
+
+```bash
+groups | grep -E "libvirt|kvm"
+```
+
+<a name="toc-31"></a>
+
+### 25.4. Domyślna sieć NAT
+
+```bash
+sudo virsh net-autostart default
+sudo virsh net-start default
+```
+
+Weryfikacja:
+
+```bash
+virsh net-list --all
+ip a show virbr0
+```
+
+Interfejs `virbr0` powinien mieć adres w stylu **192.168.122.1/24**. Goście dostają adresy z tej podsieci i wychodzą na świat przez NAT hosta.
+
+<a name="toc-32"></a>
+
+### 25.5. Domyślny URI dla `virsh`
+
+Bez jawnej konfiguracji `virsh` bez `sudo` może łączyć się z sesją użytkownika (`qemu:///session`), gdzie inaczej wygląda stan sieci i listy domen. Dla spójności z `libvirtd` systemowym ustaw:
+
+```bash
+# ~/.bashrc lub ~/.zshrc
+export LIBVIRT_DEFAULT_URI="qemu:///system"
+```
+
+Przeładuj powłokę, potem:
+
+```bash
+virsh net-list --all
+```
+
+Powinna być widoczna sieć `default` w stanie **active** z **Autostart yes**.
+
+`virt-manager` przy członkostwie w grupie `libvirt` zwykle i tak wskazuje `qemu:///system` — powyższe jest przede wszystkim dla CLI.
+
+<a name="toc-33"></a>
+
+### 25.6. Nested virtualization (opcjonalnie)
+
+Umożliwia np. Dockera lub kolejne VM wewnątrz gościa.
+
+**Intel:**
+
+```bash
+echo "options kvm_intel nested=1" | sudo tee /etc/modprobe.d/kvm-intel.conf
+```
+
+**AMD:**
+
+```bash
+echo "options kvm_amd nested=1" | sudo tee /etc/modprobe.d/kvm-amd.conf
+```
+
+Po rebootcie (lub przeładowaniu modułów) sprawdź np.:
+
+```bash
+cat /sys/module/kvm_intel/parameters/nested   # Intel: oczekiwane Y lub 1
+# AMD: /sys/module/kvm_amd/parameters/nested
+```
+
+<a name="toc-34"></a>
+
+### 25.7. Sterowniki virtio-win (tylko dla gościa Windows)
+
+Pomiń, jeśli planujesz wyłącznie Linuxa w VM.
+
+Z AUR (po zainstalowanym `yay` — [sekcja 7](#toc-07)):
+
+```bash
+yay -S virtio-win
+```
+
+Jeśli budowa z AUR się wywali (np. problem z `fedorapeople.org`), możesz pobrać ISO stabilnej linii:
+
+```bash
+mkdir -p ~/Downloads
+curl -L -o ~/Downloads/virtio-win.iso \
+  https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso
+```
+
+Alternatywnie czasem działa bezpośredni link z Koji (wersja w ścieżce zmienia się wraz z wydaniami — sprawdź aktualny katalog na [kojipkgs.fedoraproject.org](https://kojipkgs.fedoraproject.org/packages/virtio-win/)):
+
+```bash
+curl -L -o ~/Downloads/virtio-win.iso \
+  'https://kojipkgs.fedoraproject.org/packages/virtio-win/0.1.285/1.fc41/data/virtio-win-0.1.285.iso'
+```
+
+ISO podpinasz jako drugi napęd optyczny podczas instalacji Windows — ułatwia sterowniki **virtio-net** i **virtio-scsi** / dyski VirtIO.
+
+<a name="toc-35"></a>
+
+### 25.8. Pierwsza maszyna wirtualna
+
+```bash
+virt-manager
+```
+
+Skrót workflow:
+
+1. **File → New Virtual Machine → Local install media (ISO)** — wskaż ISO, typ OS (często wykryje się sam).
+2. RAM / vCPU — przy ~32 GB RAM na hoście typowo **8 GB RAM i 4 vCPU** to bezpieczny punkt wyjścia dla jednej gościnnej stacji roboczej.
+3. Dysk — często **40–80 GB**, format **qcow2** (alokacja dynamiczna).
+4. Zaznacz **Customize configuration before install** — wygodnie ustawić firmware, dysk i sieć przed pierwszym startem.
+
+W oknie konfiguracji m.in.:
+
+- **Overview → Firmware:** **UEFI** (`OVMF_CODE.fd`) dla nowoczesnych systemów.
+- **CPUs → Configuration:** **Copy host CPU configuration** (host passthrough — pełniejsza zgodność/wydajność, świadomie używaj na laptopach).
+- **CPUs → Topology:** sensownie **1 socket × N rdzeni × 1 wątek** (dopasuj do obciążenia hosta).
+- **Disk → Bus:** **VirtIO** (szybsze niż emulowany SATA).
+- **NIC → Device model:** **virtio** (szybsze niż domyślne e1000).
+- **Display:** **Spice**; **Video:** **QXL** lub **Virtio** (dla Linuxa często lepszy Virtio).
+- **Windows 11:** **Add Hardware → TPM → Emulated, version 2.0** (wraz z UEFI/OVMF).
+
+<a name="toc-36"></a>
+
+### 25.9. Bridged networking (opcjonalnie)
+
+Domyślny NAT (`virbr0`) wystarcza w większości przypadków. Bridge ma sens, gdy VM ma być **pełnoprawnym hostem w LAN** (osobny MAC/IP jak fizyczna maszyna).
+
+**Uwaga:** mostkowanie **Wi-Fi** w praktyce bywa problematyczne; stabilniej **Ethernet** (przykładowa nazwa interfejsu `enp0s31f6` — podmień na swoją z `ip link`).
+
+Przykład z **NetworkManager**:
+
+```bash
+nmcli con add type bridge ifname br0 con-name br0
+nmcli con add type bridge-slave ifname enp0s31f6 master br0
+nmcli con up br0
+```
+
+W virt-manager: **NIC → Network source: Bridge device → `br0`**.
+
+<a name="toc-37"></a>
+
+### 25.10. Shared folders (virtiofs)
+
+Udostępnianie katalogu z hosta do gościa przez virtiofs (szybka ścieżka I/O).
+
+W virt-manager: **Add Hardware → Filesystem → Driver: virtiofs** (ustaw tag i katalog hosta).
+
+**Gość Linux:**
+
+```bash
+sudo mount -t virtiofs <tag> /mnt/shared
+```
+
+**Gość Windows:** zainstaluj **WinFsp** oraz usługę **VirtIO-FS** z ISO `virtio-win`.
+
+<a name="toc-38"></a>
+
+### 25.11. Przydatne komendy
+
+```bash
+# Lista domen (VM)
+virsh list --all
+
+# Start / graceful shutdown / force off
+virsh start <nazwa>
+virsh shutdown <nazwa>
+virsh destroy <nazwa>
+
+# Snapshoty
+virsh snapshot-create-as <nazwa> snap1 "opis"
+virsh snapshot-list <nazwa>
+virsh snapshot-revert <nazwa> snap1
+
+# Edycja XML
+virsh edit <nazwa>
+
+# Konsola szeregowa (jeśli skonfigurowana w XML)
+virsh console <nazwa>
+
+# Sieci i pule storage
+virsh net-list --all
+virsh pool-list --all
+```
+
+Domyślna lokalizacja obrazów dysków (pula `default`): **`/var/lib/libvirt/images/`**.
