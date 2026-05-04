@@ -6,66 +6,119 @@ Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs,
 
 ## Spis treści
 
-- [1. Instalacja Firefox](#toc-01)
-- [2. Katalog na klony / AUR / własne rzeczy](#toc-02)
-- [3. Układ klawiatury GUI (Plasma)](#toc-03)
-- [4. Fstrim](#toc-04)
-- [5. Pakiety bazowe po instalacji](#toc-05)
-- [6. Kodeki multimedialne](#toc-06)
-- [7. `yay`](#toc-07)
-- [8. Pakiety AUR](#toc-08)
-- [9. Plymouth i splash screen](#toc-09)
-- [10. Motyw GRUB Breeze](#toc-10)
-- [11. Drukarka i skaner Brother DCP-B7520DW](#toc-11)
-- [12. Vivaldi Snapshot — wolny start na KDE](#toc-12)
-- [13. iPhone — parowanie i pliki](#toc-13)
-- [14. Bluetooth — AirPods / sterowanie mediami](#toc-14)
-- [15. Bluetooth — Xbox pad](#toc-15)
-- [16. Aktualizacje firmware Dell / LVFS](#toc-16)
-- [17. Snapshot po post-install](#toc-17)
-- [18. Power Profiles Daemon](#toc-18)
-- [19. Geolokalizacja — Night Light, strefa](#toc-19)
-- [20. Geolokalizacja — widget pogody, strefa czasowa](#toc-20)
-- [21. Zsh + Oh My Zsh + Powerlevel10k](#toc-21)
-- [22. LazyVim](#toc-22)
-  - [22.1. Motyw OneDark](#toc-23)
-  - [22.2. Motyw OneHalfDark dla `bat`](#toc-24)
-- [23. KDE Power Management — poziomy baterii](#toc-25)
-- [24. Google Cloud CLI, Terraform, Go](#toc-26)
-- [25. KVM, libvirt i virt-manager](#toc-27)
-  - [25.1. Weryfikacja sprzętu i kernela](#toc-28)
-  - [25.2. Instalacja pakietów](#toc-29)
-  - [25.3. Usługi i grupy](#toc-30)
-  - [25.4. Domyślna sieć NAT](#toc-31)
-  - [25.5. Domyślny URI dla `virsh`](#toc-32)
-  - [25.6. Nested virtualization](#toc-33)
-  - [25.7. Sterowniki virtio-win (Windows)](#toc-34)
-  - [25.8. Pierwsza maszyna wirtualna](#toc-35)
-  - [25.9. Bridged networking](#toc-36)
-  - [25.10. Shared folders (virtiofs)](#toc-37)
-  - [25.11. Przydatne komendy](#toc-38)
+- [1. Subvolumy profili — `fstab` i `mount -a`](#toc-01)
+- [2. Fstrim](#toc-02)
+- [3. Instalacja Firefox](#toc-03)
+- [4. Katalog na klony/AUR/własne rzeczy](#toc-04)
+- [5. Wymuszenie polskiego układu klawiatury dla GUI](#toc-05)
+- [6. Pakiety bazowe po instalacji](#toc-06)
+- [7. Kodeki multimedialne](#toc-07)
+- [8. `yay`](#toc-08)
+- [9. Pakiety AUR, jeśli ich chcesz:](#toc-09)
+- [10. Plymouth i splash screen](#toc-10)
+- [11. Motyw GRUB Breeze](#toc-11)
+- [12. Drukarka i skaner Brother DCP-B7520DW](#toc-12)
+- [13. Vivaldi Snapshot — obejście wolnego startu na KDE](#toc-13)
+- [14. iPhone — parowanie i dostęp do plików](#toc-14)
+- [15. Bluetooth — AirPods Pro i sterowanie mediami](#toc-15)
+- [16. Bluetooth — Xbox pad](#toc-16)
+- [17. Aktualizacje firmware Dell / LVFS](#toc-17)
+- [18. Snapshot po post-install](#toc-18)
+- [19. Power Profiles Daemon — przełącznik trybów zasilania w KDE](#toc-19)
+- [20. Geolokalizacja — Night Light, automatyczna strefa](#toc-20)
+- [21. Geolokalizacja — Night Light, widget pogody, strefa czasowa](#toc-21)
+- [22. Zsh + Oh My Zsh + Powerlevel10k](#toc-22)
+- [23. LazyVim](#toc-23)
+  - [23.1. Motyw OneDark](#toc-23-1)
+  - [23.2. Motyw OneHalfDark dla `bat`](#toc-23-2)
+- [24. KDE Power Management — poziomy baterii](#toc-24)
+- [25. Google Cloud CLI, Terraform, Go](#toc-25)
+- [26. KVM, libvirt i virt-manager](#toc-26)
+  - [26.1. Weryfikacja sprzętu i kernela](#toc-26-1)
+  - [26.2. Instalacja pakietów](#toc-26-2)
+  - [26.3. Usługi i grupy](#toc-26-3)
+  - [26.4. Domyślna sieć NAT](#toc-26-4)
+  - [26.5. Domyślny URI dla `virsh`](#toc-26-5)
+  - [26.6. Nested virtualization](#toc-26-6)
+  - [26.7. Sterowniki virtio-win (Windows)](#toc-26-7)
+  - [26.8. Pierwsza maszyna wirtualna](#toc-26-8)
+  - [26.9. Bridged networking](#toc-26-9)
+  - [26.10. Shared folders (virtiofs)](#toc-26-10)
+  - [26.11. Przydatne komendy](#toc-26-11)
 
 ---
 
 <a name="toc-01"></a>
 
-## 1. Instalacja Firefox
+## 1. Subvolumy profili — `fstab` i `mount -a`
+
+W `arch-install` (§4) tworzysz subvolumy `@mozilla`, `@vivaldi`, `@vivaldi-snapshot`, `@thunderbird`, ale **nie montujesz** ich w instalatorze (żeby `useradd` w §8 czysto skopiował `/etc/skel`). Tutaj — już na żywym systemie, zalogowany jako `pietryszak` — dopisujesz wpisy do `/etc/fstab` i montujesz profile.
+
+UUID Btrfsa wyciągamy z `findmnt`, użytkownik z `${USER}`:
+
+```bash
+FS_UUID=$(findmnt -no UUID /)
+echo "$FS_UUID"
+
+OPTS="noatime,compress=zstd:3,ssd,space_cache=v2,discard=async"
+
+sudo tee -a /etc/fstab >/dev/null <<EOF
+UUID=${FS_UUID} /home/${USER}/.mozilla                 btrfs ${OPTS},subvol=/@mozilla          0 0
+UUID=${FS_UUID} /home/${USER}/.config/vivaldi          btrfs ${OPTS},subvol=/@vivaldi          0 0
+UUID=${FS_UUID} /home/${USER}/.config/vivaldi-snapshot btrfs ${OPTS},subvol=/@vivaldi-snapshot 0 0
+UUID=${FS_UUID} /home/${USER}/.thunderbird             btrfs ${OPTS},subvol=/@thunderbird      0 0
+EOF
+```
+
+Punkty montowania i właściciel (Vivaldi/Thunderbird zachowują się grzeczniej, jeśli katalogi już istnieją z poprawnym UID/GID **przed** pierwszym uruchomieniem aplikacji):
+
+```bash
+mkdir -p ~/.mozilla ~/.config/vivaldi ~/.config/vivaldi-snapshot ~/.thunderbird
+sudo systemctl daemon-reload
+sudo mount -a
+
+findmnt -R /home
+```
+
+Uwaga — Snapper: te subvolumy są zagnieżdżone wewnątrz `/home`, więc `snapper -c home` **nie obejmuje** ich plików. Jeśli chcesz mieć snapshoty profili, dodaj im własne konfiguracje (`snapper -c vivaldi-snapshot create-config /home/${USER}/.config/vivaldi-snapshot` itd.) albo backup poza Snapperem.
+
+Idempotencja (gdyby skrypt miał trafić do `arch-settings`/innego setupu — żeby nie dopisać tych samych wpisów drugi raz):
+
+```bash
+grep -q ' /home/[^ ]*/\.config/vivaldi-snapshot ' /etc/fstab || sudo tee -a /etc/fstab >/dev/null <<EOF
+... (wstaw blok jak wyżej) ...
+EOF
+```
+
+<a name="toc-02"></a>
+
+## 2. Fstrim
+
+`fstrim.timer` warto mieć na SSD/NVMe:
+
+```bash
+sudo systemctl enable --now fstrim.timer
+```
+
+<a name="toc-03"></a>
+
+## 3. Instalacja Firefox
 
 ```bash
 sudo pacman -S --needed firefox 
 ```
 
-<a name="toc-02"></a>
+<a name="toc-04"></a>
 
-## 2. Katalog na klony/AUR/własne rzeczy
+## 4. Katalog na klony/AUR/własne rzeczy
 
 ```bash
 mkdir -p ~/.gc
 ```
 
-<a name="toc-03"></a>
+<a name="toc-05"></a>
 
-## 3. Wymuszenie polskiego układu klawiatury dla GUI
+## 5. Wymuszenie polskiego układu klawiatury dla GUI
 
 Systemowo masz `KEYMAP=pl`, ale dla GUI/Plasma możesz dodatkowo ustawić:
 
@@ -80,19 +133,9 @@ localectl status
 ```
 Dodatkowo NumLock Settins > Keyboard > Numlock on startup > Turn on
 
-<a name="toc-04"></a>
+<a name="toc-06"></a>
 
-## 4. Fstrim
-
-`fstrim.timer` warto mieć na SSD/NVMe:
-
-```bash
-sudo systemctl enable --now fstrim.timer
-```
-
-<a name="toc-05"></a>
-
-## 5. Pakiety bazowe po instalacji
+## 6. Pakiety bazowe po instalacji
 
 Przed większym blokiem zmian:
 
@@ -120,9 +163,9 @@ fc-cache -fv
 
 ---
 
-<a name="toc-06"></a>
+<a name="toc-07"></a>
 
-## 6. Kodeki multimedialne
+## 7. Kodeki multimedialne
 
 Minimalny system ma część bibliotek multimedialnych jako zależności KDE, ale do pełniejszej obsługi audio/wideo warto doinstalować:
 
@@ -149,9 +192,9 @@ sudo pacman -S --needed libdvdcss
 ```
 ---
 
-<a name="toc-07"></a>
+<a name="toc-08"></a>
 
-## 7. `yay`
+## 8. `yay`
 
 Instalacja `yay`:
 
@@ -162,9 +205,9 @@ cd yay
 makepkg -si
 ```
 
-<a name="toc-08"></a>
+<a name="toc-09"></a>
 
-## 8. Pakiety AUR, jeśli ich chcesz:
+## 9. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
 yay -S vivaldi-snapshot mediawriter
@@ -172,9 +215,9 @@ yay -S vivaldi-snapshot mediawriter
 
 ---
 
-<a name="toc-09"></a>
+<a name="toc-10"></a>
 
-## 9. Plymouth i splash screen
+## 10. Plymouth i splash screen
 
 Instalacja Plymouth:
 
@@ -225,9 +268,9 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-<a name="toc-10"></a>
+<a name="toc-11"></a>
 
-## 10. Motyw GRUB Breeze
+## 11. Motyw GRUB Breeze
 
 Instalacja:
 
@@ -282,9 +325,9 @@ set theme=($root)/grub/themes/breeze/theme.txt
 
 Jeśli linia `set theme` się pojawia — restart i GRUB pokaże motyw Breeze.
 
-<a name="toc-11"></a>
+<a name="toc-12"></a>
 
-## 11. Drukarka i skaner Brother DCP-B7520DW
+## 12. Drukarka i skaner Brother DCP-B7520DW
 
 Jeżeli chcesz obsługę drukarki/skanera Brother, doinstaluj:
 
@@ -311,9 +354,9 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 ---
 
-<a name="toc-12"></a>
+<a name="toc-13"></a>
 
-## 12. Vivaldi Snapshot — obejście wolnego startu na KDE
+## 13. Vivaldi Snapshot — obejście wolnego startu na KDE
 
 Ten rozdział dotyczy **wyłącznie** kanału snapshot (`vivaldi-snapshot` z AUR). Stabilny pakiet `vivaldi` z repozytoriów ma osobny profil w `~/.config/vivaldi`, snapshot — w `~/.config/vivaldi-snapshot`; przy obu zainstalowanych naraz w `~/.config` będą **dwa** katalogi — to normalne i nie oznacza, że „snapshot nadpisuje” stabilny.
 
@@ -359,9 +402,9 @@ Jeśli Vivaldi dalej nie startuje, uruchom go z terminala, żeby zobaczyć błą
 /usr/bin/vivaldi-snapshot --password-store=basic
 ```
 
-<a name="toc-13"></a>
+<a name="toc-14"></a>
 
-## 13. iPhone — parowanie i dostęp do plików
+## 14. iPhone — parowanie i dostęp do plików
 
 Pakiety:
 
@@ -413,9 +456,9 @@ fusermount -u ~/iPhone
 
 ---
 
-<a name="toc-14"></a>
+<a name="toc-15"></a>
 
-## 14. Bluetooth — AirPods Pro i sterowanie mediami
+## 15. Bluetooth — AirPods Pro i sterowanie mediami
 
 Do sterowania mediami z przycisków słuchawek Bluetooth:
 
@@ -438,9 +481,9 @@ sudo pacman -S --needed playerctl
 
 ---
 
-<a name="toc-15"></a>
+<a name="toc-16"></a>
 
-## 15. Bluetooth — Xbox pad
+## 16. Bluetooth — Xbox pad
 
 Pakiet z AUR:
 
@@ -456,9 +499,9 @@ sudo reboot
 
 ---
 
-<a name="toc-16"></a>
+<a name="toc-17"></a>
 
-## 16. Aktualizacje firmware Dell / LVFS
+## 17. Aktualizacje firmware Dell / LVFS
 
 W bazowym minimalnym systemie `fwupd` nie był instalowany. Jeśli chcesz aktualizacje BIOS/UEFI/Thunderbolt/NVMe przez LVFS:
 
@@ -482,9 +525,9 @@ fwupdmgr update
 
 ---
 
-<a name="toc-17"></a>
+<a name="toc-18"></a>
 
-## 17. Snapshot po post-install
+## 18. Snapshot po post-install
 
 Po większych zmianach po instalacji:
 
@@ -506,9 +549,9 @@ sudo snapper -c home modify --cleanup-algorithm important NUMER
 
 ---
 
-<a name="toc-18"></a>
+<a name="toc-19"></a>
 
-## 18. Power Profiles Daemon — przełącznik trybów zasilania w KDE
+## 19. Power Profiles Daemon — przełącznik trybów zasilania w KDE
 
 W Plasma w *Settings → Power and Battery* widać komunikat „Power profiles may be supported on your device” — w Arch pakiet nie jest instalowany domyślnie (w odróżnieniu od Fedory/Ubuntu).
 
@@ -527,9 +570,9 @@ powerprofilesctl
 
 **Uwaga:** `power-profiles-daemon` jest niekompatybilny z `tlp`. Nie instaluj obu naraz — wybierz jedno.
 
-<a name="toc-19"></a>
+<a name="toc-20"></a>
 
-## 19. Geolokalizacja — Night Light, automatyczna strefa
+## 20. Geolokalizacja — Night Light, automatyczna strefa
 
 W Arch domyślnie nie ma demona lokalizacji (w Ubuntu/Fedorze jest preinstalowany). Bez niego **Night Light → Automatically detect location** nie działa — pokazuje pustą mapę.
 
@@ -563,9 +606,9 @@ system=true
 users=
 ```
 
-<a name="toc-20"></a>
+<a name="toc-21"></a>
 
-## 20. Geolokalizacja — Night Light, widget pogody, strefa czasowa
+## 21. Geolokalizacja — Night Light, widget pogody, strefa czasowa
 
 ```
 sudo pacman -S --needed geoclue
@@ -618,9 +661,9 @@ EOF
 
 Format: szerokość, długość, dokładność [m], wysokość [m] — każda wartość w osobnej linii.
 
-<a name="toc-21"></a>
+<a name="toc-22"></a>
 
-## 21. Zsh + Oh My Zsh + Powerlevel10k
+## 22. Zsh + Oh My Zsh + Powerlevel10k
 
 Instalacja pakietów:
 
@@ -721,9 +764,9 @@ Konfiguracja Powerlevel10k:
 p10k configure
 ```
 
-<a name="toc-22"></a>
+<a name="toc-23"></a>
 
-## 22. LazyVim
+## 23. LazyVim
 
 Backup obecnej konfiguracji Neovima:
 
@@ -759,9 +802,9 @@ nvim
 
 Po pierwszym uruchomieniu LazyVim pobierze pluginy.
 
-<a name="toc-23"></a>
+<a name="toc-23-1"></a>
 
-### 22.1. Motyw OneDark
+### 23.1. Motyw OneDark
 
 Utwórz plik:
 
@@ -803,9 +846,9 @@ Zamknij i uruchom ponownie:
 nvim
 ```
 
-<a name="toc-24"></a>
+<a name="toc-23-2"></a>
 
-### 22.2. Motyw OneHalfDark dla `bat`
+### 23.2. Motyw OneHalfDark dla `bat`
 
 Utwórz katalog konfiguracji:
 
@@ -833,9 +876,9 @@ Test:
 bat ~/.zshrc
 ```
 
-<a name="toc-25"></a>
+<a name="toc-24"></a>
 
-## 23. KDE Power Management — poziomy baterii
+## 24. KDE Power Management — poziomy baterii
 
 Ustaw zalecane poziomy baterii:
 
@@ -862,18 +905,18 @@ Battery Levels:
 
 Przy zużytej baterii niskie procenty oznaczają bardzo mało realnej energii. `Low level` na `15%` daje wcześniejsze ostrzeżenie, a `Critical level` na `7%` zostawia mały bufor przed hibernacją.
 
-<a name="toc-26"></a>
+<a name="toc-25"></a>
 
-## 24. Google Cloud CLI, Terraform, Go
+## 25. Google Cloud CLI, Terraform, Go
 
-Narzędzia GCP (CLI), Terraform i kompilator Go — typowo po zainstalowanym `yay` ([§ 7](#toc-07)):
+Narzędzia GCP (CLI), Terraform i kompilator Go — typowo po zainstalowanym `yay` ([§ 8](#toc-08)):
 
 ```bash
 yay -S google-cloud-cli gsutil
 sudo pacman -S --needed terraform go python3 bind
 ```
 
-`python3` jest też na liście w [§ 5](#toc-05); `--needed` nie nadpisuje nic bez potrzeby.
+`python3` jest też na liście w [§ 6](#toc-06); `--needed` nie nadpisuje nic bez potrzeby.
 
 Po instalacji SDK (konto, projekt, domyślny region):
 
@@ -883,17 +926,17 @@ gcloud init
 
 ---
 
-<a name="toc-27"></a>
+<a name="toc-26"></a>
 
-## 25. KVM, libvirt i virt-manager
+## 26. KVM, libvirt i virt-manager
 
 Kompletny setup wirtualizacji na Arch Linux: **KVM/QEMU**, **libvirt**, **virt-manager**.
 
 **Sprzęt referencyjny:** Dell Latitude 5421, Intel i7-11850H (Tiger Lake H, 16 wątków), 32 GB RAM.
 
-<a name="toc-28"></a>
+<a name="toc-26-1"></a>
 
-### 25.1. Weryfikacja sprzętu i kernela
+### 26.1. Weryfikacja sprzętu i kernela
 
 Sprawdź, czy CPU wspiera wirtualizację i czy moduły KVM są załadowane:
 
@@ -909,9 +952,9 @@ Oczekiwane:
 
 Jeśli brak `kvm_intel` / `kvm_amd` — włącz **Virtualization Support** (VT-x / SVM) w firmware. Na Dellu: **F2** przy starcie → **Virtualization Support**.
 
-<a name="toc-29"></a>
+<a name="toc-26-2"></a>
 
-### 25.2. Instalacja pakietów
+### 26.2. Instalacja pakietów
 
 ```bash
 sudo pacman -S --needed qemu-full libvirt virt-manager virt-viewer \
@@ -934,9 +977,9 @@ sudo pacman -S --needed qemu-full libvirt virt-manager virt-viewer \
 
 **Uwaga:** pakiet `bridge-utils` został wycofany z repozytoriów Arch — mostki konfiguruje się przez `iproute2` (`ip link`), które jest w systemie domyślnie. Nie instaluj `bridge-utils`.
 
-<a name="toc-30"></a>
+<a name="toc-26-3"></a>
 
-### 25.3. Usługi i grupy
+### 26.3. Usługi i grupy
 
 ```bash
 sudo systemctl enable --now libvirtd.service
@@ -951,9 +994,9 @@ Po dodaniu do grup **wyloguj się i zaloguj ponownie** (albo tymczasowo: `newgrp
 groups | grep -E "libvirt|kvm"
 ```
 
-<a name="toc-31"></a>
+<a name="toc-26-4"></a>
 
-### 25.4. Domyślna sieć NAT
+### 26.4. Domyślna sieć NAT
 
 ```bash
 sudo virsh net-autostart default
@@ -969,9 +1012,9 @@ ip a show virbr0
 
 Interfejs `virbr0` powinien mieć adres w stylu **192.168.122.1/24**. Goście dostają adresy z tej podsieci i wychodzą na świat przez NAT hosta.
 
-<a name="toc-32"></a>
+<a name="toc-26-5"></a>
 
-### 25.5. Domyślny URI dla `virsh`
+### 26.5. Domyślny URI dla `virsh`
 
 Bez jawnej konfiguracji `virsh` bez `sudo` może łączyć się z sesją użytkownika (`qemu:///session`), gdzie inaczej wygląda stan sieci i listy domen. Dla spójności z `libvirtd` systemowym ustaw:
 
@@ -990,9 +1033,9 @@ Powinna być widoczna sieć `default` w stanie **active** z **Autostart yes**.
 
 `virt-manager` przy członkostwie w grupie `libvirt` zwykle i tak wskazuje `qemu:///system` — powyższe jest przede wszystkim dla CLI.
 
-<a name="toc-33"></a>
+<a name="toc-26-6"></a>
 
-### 25.6. Nested virtualization (opcjonalnie)
+### 26.6. Nested virtualization (opcjonalnie)
 
 Umożliwia np. Dockera lub kolejne VM wewnątrz gościa.
 
@@ -1015,13 +1058,13 @@ cat /sys/module/kvm_intel/parameters/nested   # Intel: oczekiwane Y lub 1
 # AMD: /sys/module/kvm_amd/parameters/nested
 ```
 
-<a name="toc-34"></a>
+<a name="toc-26-7"></a>
 
-### 25.7. Sterowniki virtio-win (tylko dla gościa Windows)
+### 26.7. Sterowniki virtio-win (tylko dla gościa Windows)
 
 Pomiń, jeśli planujesz wyłącznie Linuxa w VM.
 
-Z AUR (po zainstalowanym `yay` — [sekcja 7](#toc-07)):
+Z AUR (po zainstalowanym `yay` — [sekcja 8](#toc-08)):
 
 ```bash
 yay -S virtio-win
@@ -1044,9 +1087,9 @@ curl -L -o ~/Downloads/virtio-win.iso \
 
 ISO podpinasz jako drugi napęd optyczny podczas instalacji Windows — ułatwia sterowniki **virtio-net** i **virtio-scsi** / dyski VirtIO.
 
-<a name="toc-35"></a>
+<a name="toc-26-8"></a>
 
-### 25.8. Pierwsza maszyna wirtualna
+### 26.8. Pierwsza maszyna wirtualna
 
 ```bash
 virt-manager
@@ -1069,9 +1112,9 @@ W oknie konfiguracji m.in.:
 - **Display:** **Spice**; **Video:** **QXL** lub **Virtio** (dla Linuxa często lepszy Virtio).
 - **Windows 11:** **Add Hardware → TPM → Emulated, version 2.0** (wraz z UEFI/OVMF).
 
-<a name="toc-36"></a>
+<a name="toc-26-9"></a>
 
-### 25.9. Bridged networking (opcjonalnie)
+### 26.9. Bridged networking (opcjonalnie)
 
 Domyślny NAT (`virbr0`) wystarcza w większości przypadków. Bridge ma sens, gdy VM ma być **pełnoprawnym hostem w LAN** (osobny MAC/IP jak fizyczna maszyna).
 
@@ -1087,9 +1130,9 @@ nmcli con up br0
 
 W virt-manager: **NIC → Network source: Bridge device → `br0`**.
 
-<a name="toc-37"></a>
+<a name="toc-26-10"></a>
 
-### 25.10. Shared folders (virtiofs)
+### 26.10. Shared folders (virtiofs)
 
 Udostępnianie katalogu z hosta do gościa przez virtiofs (szybka ścieżka I/O).
 
@@ -1103,9 +1146,9 @@ sudo mount -t virtiofs <tag> /mnt/shared
 
 **Gość Windows:** zainstaluj **WinFsp** oraz usługę **VirtIO-FS** z ISO `virtio-win`.
 
-<a name="toc-38"></a>
+<a name="toc-26-11"></a>
 
-### 25.11. Przydatne komendy
+### 26.11. Przydatne komendy
 
 ```bash
 # Lista domen (VM)
