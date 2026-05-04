@@ -74,12 +74,6 @@ findmnt -R /home
 
 Uwaga — Snapper: te subvolumy są zagnieżdżone wewnątrz /home, więc snapper -c home nie obejmuje ich plików. Jeśli chcesz mieć snapshoty profili, dodaj im własne konfiguracje (snapper -c vivaldi-snapshot create-config /home/${USER}/.config/vivaldi-snapshot itd.) albo backup poza Snapperem.
 
-Idempotencja (gdyby skrypt miał trafić do arch-settings/innego setupu — żeby nie dopisać tych samych wpisów drugi raz):
-
-grep -q ' /home/[^ ]*/\.config/vivaldi-snapshot ' /etc/fstab || sudo tee -a /etc/fstab >/dev/null <<EOF
-... (wstaw blok jak wyżej) ...
-EOF
-
 2. Fstrim
 
 fstrim.timer warto mieć na SSD/NVMe:
