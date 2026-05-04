@@ -108,9 +108,10 @@ sudo pacman -S --needed \
   zip unzip p7zip ark unrar \
   exfatprogs dosfstools \
   usbutils lsof smartmontools traceroute \
-  wireguard-tools firefox thunderbird base-devel dkms btop fastfetch gcc spectacle \
+  wireguard-tools firefox thunderbird base-devel dkms gcc spectacle \
   gwenview kcalc kdeplasma-addons eza ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols \
-  ripgrep bat fd fzf micro most zoxide wl-clipboard python3 \ plasma-browser-integration
+  ripgrep bat fd fzf micro most zoxide wl-clipboard python3 \
+  plasma-browser-integration partitionmanager
 ```
 
 ```bash
@@ -166,7 +167,7 @@ makepkg -si
 ## 8. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
-yay -S brave-origin-nightly
+yay -S brave-origin-nightly mediawriter
 ```
 
 ---
