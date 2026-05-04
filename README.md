@@ -17,7 +17,7 @@ Założenie: bazowy system Arch już działa, masz Btrfs + Snapper + grub-btrfs,
 - [9. Plymouth i splash screen](#toc-09)
 - [10. Motyw GRUB Breeze](#toc-10)
 - [11. Drukarka i skaner Brother DCP-B7520DW](#toc-11)
-- [12. Brave — wolny start na KDE](#toc-12)
+- [12. Vivaldi Snapshot — wolny start na KDE](#toc-12)
 - [13. iPhone — parowanie i pliki](#toc-13)
 - [14. Bluetooth — AirPods / sterowanie mediami](#toc-14)
 - [15. Bluetooth — Xbox pad](#toc-15)
@@ -167,7 +167,7 @@ makepkg -si
 ## 8. Pakiety AUR, jeśli ich chcesz:
 
 ```bash
-yay -S brave-origin-nightly mediawriter
+yay -S vivaldi-snapshot mediawriter
 ```
 
 ---
@@ -313,29 +313,27 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 <a name="toc-12"></a>
 
-## 12. Brave — obejście wolnego startu na KDE
+## 12. Vivaldi Snapshot — obejście wolnego startu na KDE
 
-Brave potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Brave (zarówno nightly, jak i snapshot) instaluje **dwa** pliki `.desktop` — stary i nowy reverse-DNS — KDE używa nowego, więc trzeba zmodyfikować oba.
+Vivaldi (Chromium) potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Pakiet `vivaldi-snapshot` z AUR instaluje `vivaldi-snapshot.desktop` w `/usr/share/applications/` — skopiuj go do `~/.local/share/applications/` i dopisz flagę do każdej linii `Exec=`. Jeśli zobaczysz drugi plik w stylu reverse-DNS (`com.vivaldi.*`), dodaj go do pętli tak samo.
 
 Sprzątanie poprzednich (potencjalnie zepsutych) kopii:
 
 ```
-rm -f ~/.local/share/applications/brave*.desktop \
-      ~/.local/share/applications/com.brave.*.desktop
+rm -f ~/.local/share/applications/vivaldi-snapshot.desktop \
+      ~/.local/share/applications/com.vivaldi.*.desktop
 ```
 
-Kopia świeżych oryginałów i wstrzyknięcie flagi (zachowuje pełną ścieżkę binarki niezależnie od kanału):
+Kopia świeżego oryginału i wstrzyknięcie flagi:
 
 ```
 mkdir -p ~/.local/share/applications
 
-for f in /usr/share/applications/brave-origin-nightly.desktop \
-         /usr/share/applications/com.brave.Origin.nightly.desktop; do
+for f in /usr/share/applications/vivaldi-snapshot.desktop; do
   [ -f "$f" ] && cp "$f" ~/.local/share/applications/
 done
 
-for f in ~/.local/share/applications/brave-origin-nightly.desktop \
-         ~/.local/share/applications/com.brave.Origin.nightly.desktop; do
+for f in ~/.local/share/applications/vivaldi-snapshot.desktop; do
   [ -f "$f" ] && sed -i 's|^Exec=\([^ ]*\)\(.*\)$|Exec=\1 --password-store=basic\2|' "$f"
 done
 ```
@@ -347,25 +345,16 @@ update-desktop-database ~/.local/share/applications 2>/dev/null || true
 XDG_MENU_PREFIX=plasma- kbuildsycoca6 --noincremental
 ```
 
-Weryfikacja — wszystkie linie `Exec=` powinny mieć `--password-store=basic` zaraz po nazwie binarki:
+Weryfikacja — każda linia `Exec=` powinna mieć `--password-store=basic` zaraz po ścieżce binarki:
 
 ```
-grep ^Exec= ~/.local/share/applications/brave-origin-nightly.desktop \
-            ~/.local/share/applications/com.brave.Origin.nightly.desktop
+grep ^Exec= ~/.local/share/applications/vivaldi-snapshot.desktop
 ```
 
-Oczekiwany efekt (6 linii — 3 w każdym pliku):
+Jeśli Vivaldi dalej nie startuje, uruchom go z terminala, żeby zobaczyć błąd:
 
 ```
-Exec=/usr/bin/brave-origin-nightly --password-store=basic %U
-Exec=/usr/bin/brave-origin-nightly --password-store=basic
-Exec=/usr/bin/brave-origin-nightly --password-store=basic --incognito
-```
-
-Jeśli Brave dalej nie startuje, uruchom go z terminala żeby zobaczyć błąd:
-
-```
-/usr/bin/brave-origin-nightly --password-store=basic
+/usr/bin/vivaldi-snapshot --password-store=basic
 ```
 
 <a name="toc-13"></a>
