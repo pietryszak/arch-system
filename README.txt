@@ -220,12 +220,6 @@ Weryfikacja — w wygenerowanym grub.cfg powinna pojawić się linia z set theme
 
 sudo grep -E 'set theme|set gfxmode|terminal_output' /boot/grub/grub.cfg
 
-Oczekiwany efekt:
-
-set gfxmode=auto
-terminal_output gfxterm
-set theme=($root)/grub/themes/breeze/theme.txt
-
 Jeśli linia set theme się pojawia — restart i GRUB pokaże motyw Breeze.
 
 12. Drukarka i skaner Brother DCP-B7520DW
