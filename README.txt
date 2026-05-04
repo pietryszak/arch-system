@@ -64,11 +64,14 @@ UUID=${FS_UUID} /home/${USER}/.config/vivaldi-snapshot btrfs ${OPTS},subvol=/@vi
 UUID=${FS_UUID} /home/${USER}/.thunderbird             btrfs ${OPTS},subvol=/@thunderbird      0 0
 EOF
 
-Punkty montowania i właściciel (Vivaldi/Thunderbird zachowują się grzeczniej, jeśli katalogi już istnieją z poprawnym UID/GID przed pierwszym uruchomieniem aplikacji):
+Punkty montowania, montaż i właściciel: katalogi utworzone jako root podczas instalacji albo puste subvolumy po pierwszym mount często mają root:root na granicy mountpointu — bez chown Firefox / Thunderbird nie zapiszą profilu. Ustaw siebie na całym drzewie pod tymi ścieżkami:
 
 mkdir -p ~/.mozilla ~/.config/vivaldi ~/.config/vivaldi-snapshot ~/.thunderbird
 sudo systemctl daemon-reload
 sudo mount -a
+
+sudo chown -R "${USER}:${USER}" \
+  ~/.mozilla ~/.config/vivaldi ~/.config/vivaldi-snapshot ~/.thunderbird
 
 findmnt -R /home
 
@@ -219,6 +222,12 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 Weryfikacja — w wygenerowanym grub.cfg powinna pojawić się linia z set theme=...:
 
 sudo grep -E 'set theme|set gfxmode|terminal_output' /boot/grub/grub.cfg
+
+Oczekiwany efekt:
+
+set gfxmode=auto
+terminal_output gfxterm
+set theme=($root)/grub/themes/breeze/theme.txt
 
 Jeśli linia set theme się pojawia — restart i GRUB pokaże motyw Breeze.
 

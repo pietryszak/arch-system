@@ -70,12 +70,15 @@ UUID=${FS_UUID} /home/${USER}/.thunderbird             btrfs ${OPTS},subvol=/@th
 EOF
 ```
 
-Punkty montowania i właściciel (Vivaldi/Thunderbird zachowują się grzeczniej, jeśli katalogi już istnieją z poprawnym UID/GID **przed** pierwszym uruchomieniem aplikacji):
+Punkty montowania, montaż i **właściciel**: katalogi utworzone jako root podczas instalacji albo puste subvolumy po pierwszym `mount` często mają **`root:root`** na granicy mountpointu — bez `chown` Firefox / Thunderbird nie zapiszą profilu. Ustaw siebie na całym drzewie pod tymi ścieżkami:
 
 ```bash
 mkdir -p ~/.mozilla ~/.config/vivaldi ~/.config/vivaldi-snapshot ~/.thunderbird
 sudo systemctl daemon-reload
 sudo mount -a
+
+sudo chown -R "${USER}:${USER}" \
+  ~/.mozilla ~/.config/vivaldi ~/.config/vivaldi-snapshot ~/.thunderbird
 
 findmnt -R /home
 ```
