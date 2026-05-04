@@ -315,7 +315,9 @@ Jeśli `scanimage -L` pokazuje urządzenie, skanowanie jest gotowe.
 
 ## 12. Vivaldi Snapshot — obejście wolnego startu na KDE
 
-Vivaldi (Chromium) potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Pakiet `vivaldi-snapshot` z AUR instaluje `vivaldi-snapshot.desktop` w `/usr/share/applications/` — skopiuj go do `~/.local/share/applications/` i dopisz flagę do każdej linii `Exec=`. Jeśli zobaczysz drugi plik w stylu reverse-DNS (`com.vivaldi.*`), dodaj go do pętli tak samo.
+Ten rozdział dotyczy **wyłącznie** kanału snapshot (`vivaldi-snapshot` z AUR). Stabilny pakiet `vivaldi` z repozytoriów ma osobny profil w `~/.config/vivaldi`, snapshot — w `~/.config/vivaldi-snapshot`; przy obu zainstalowanych naraz w `~/.config` będą **dwa** katalogi — to normalne i nie oznacza, że „snapshot nadpisuje” stabilny.
+
+Vivaldi (Chromium) potrafi długo startować przez integrację z secret service/KWallet. Flaga `--password-store=basic` to obchodzi. Pakiet `vivaldi-snapshot` instaluje `vivaldi-snapshot.desktop` w `/usr/share/applications/` — skopiuj go do `~/.local/share/applications/` i dopisz flagę do każdej linii `Exec=`. Jeśli zobaczysz drugi plik w stylu reverse-DNS (`com.vivaldi.*`), dodaj go do pętli tak samo.
 
 Sprzątanie poprzednich (potencjalnie zepsutych) kopii:
 
